@@ -20,8 +20,6 @@ public class CepController {
 
     @GetMapping("/{cep}")
     public Mono<CepResponse> getCep(@PathVariable String cep) {
-        Mono<CepResponse> response = cepService.getCep(cep);
-
-        return response;
+        return cepService.getCep(cep);
     }
 }
