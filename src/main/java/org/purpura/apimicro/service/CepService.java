@@ -1,5 +1,6 @@
 package org.purpura.apimicro.service;
 
+import org.purpura.apimicro.exception.InvalidCepException;
 import org.purpura.apimicro.model.cep.CepResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
