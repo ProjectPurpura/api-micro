@@ -25,7 +25,7 @@ public class CepService {
                 .bodyToMono(CepResponse.class)
                 .flatMap(response -> {
                     if (response.isErro()) {
-                        return Mono.error(new IllegalArgumentException("Invalid CEP: " + cep));
+                        return Mono.error(new InvalidCepException(cep));
                     }
                     return Mono.just(response);
                 });
