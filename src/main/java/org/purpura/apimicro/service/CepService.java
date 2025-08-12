@@ -2,6 +2,7 @@ package org.purpura.apimicro.service;
 
 import org.purpura.apimicro.exception.InvalidCepException;
 import org.purpura.apimicro.model.cep.CepResponseDTO;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,6 +13,7 @@ public class CepService {
     private final WebClient webClient;
 
     private static final String CEP_URL = "https://viacep.com.br/ws/";
+    private static final String CEP_CACHE = "cep";
 
 
     public CepService(WebClient.Builder webClientbuilder) {
@@ -19,6 +21,7 @@ public class CepService {
     }
 
 
+    @Cacheable(value = CEP_CACHE, key = "#cep")
     public Mono<CepResponseDTO> fetch(String cep) {
         String cleanedCep = cep.replaceAll("[^0-9]", "");
         return webClient.get()
@@ -33,6 +36,7 @@ public class CepService {
                     return Mono.just(response);
                 });
     }
+
 
     public Mono<Boolean> isValid(String cep) {
         try {
