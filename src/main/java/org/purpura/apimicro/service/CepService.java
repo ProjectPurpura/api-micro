@@ -18,7 +18,7 @@ public class CepService {
     }
 
 
-    private Mono<CepResponseDTO> fetch(String cep) {
+    public Mono<CepResponseDTO> fetch(String cep) {
         String cleanedCep = cep.replaceAll("[^0-9]", "");
         return webClient.get()
                 .uri("{cep}/json/", cleanedCep)
@@ -30,12 +30,12 @@ public class CepService {
         return fetch(cep).map(response -> !response.isErro());
     }
 
-    public Mono<CepResponseDTO> getCep(String cep) {
-        return fetch(cep).flatMap(response -> {
-            if (response.isErro()) {
-                return Mono.error(new InvalidCepException(cep));
-            }
-            return Mono.just(response);
-        });
-    }
+//    public Mono<CepResponseDTO> getCep(String cep) {
+//        return fetch(cep).flatMap(response -> {
+//            if (response.isErro()) {
+//                return Mono.error(new InvalidCepException(cep));
+//            }
+//            return Mono.just(response);
+//        });
+//    }
 }
