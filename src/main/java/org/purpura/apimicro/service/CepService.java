@@ -1,7 +1,7 @@
 package org.purpura.apimicro.service;
 
 import org.purpura.apimicro.exception.InvalidCepException;
-import org.purpura.apimicro.model.cep.CepResponse;
+import org.purpura.apimicro.model.cep.CepResponseDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -17,17 +17,25 @@ public class CepService {
         this.webClient = webClientbuilder.baseUrl(CEP_URL).build();
     }
 
-    public Mono<CepResponse> getCep(String cep) {
+
+    private Mono<CepResponseDTO> fetch(String cep) {
         String cleanedCep = cep.replaceAll("[^0-9]", "");
         return webClient.get()
                 .uri("{cep}/json/", cleanedCep)
                 .retrieve()
-                .bodyToMono(CepResponse.class)
-                .flatMap(response -> {
-                    if (response.isErro()) {
-                        return Mono.error(new InvalidCepException(cep));
-                    }
-                    return Mono.just(response);
-                });
+                .bodyToMono(CepResponseDTO.class);
+    }
+
+    public Mono<Boolean> isValid(String cep) {
+        return fetch(cep).map(response -> !response.isErro());
+    }
+
+    public Mono<CepResponseDTO> getCep(String cep) {
+        return fetch(cep).flatMap(response -> {
+            if (response.isErro()) {
+                return Mono.error(new InvalidCepException(cep));
+            }
+            return Mono.just(response);
+        });
     }
 }
