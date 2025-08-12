@@ -23,7 +23,7 @@ public class CepController {
         return cepService.getCep(cep);
     }
 
-    @GetMapping("/{cep}/valid")
+    @GetMapping("/{cep}/is_valid")
     public Mono<Boolean> isValid(@PathVariable String cep) {
         return cepService.isValid(cep);
     }
