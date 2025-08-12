@@ -3,7 +3,7 @@ package org.purpura.apimicro.model.cep;
 import lombok.Data;
 
 @Data
-public class CepResponse {
+public class CepResponseDTO {
     private String cep;
     private String logradouro;
     private String complemento;

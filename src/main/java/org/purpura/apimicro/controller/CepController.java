@@ -1,6 +1,6 @@
 package org.purpura.apimicro.controller;
 
-import org.purpura.apimicro.model.cep.CepResponse;
+import org.purpura.apimicro.model.cep.CepResponseDTO;
 import org.purpura.apimicro.service.CepService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +19,12 @@ public class CepController {
     }
 
     @GetMapping("/{cep}")
-    public Mono<CepResponse> getCep(@PathVariable String cep) {
-        return cepService.getCep(cep);
+    public Mono<CepResponseDTO> getCep(@PathVariable String cep) {
+        return cepService.fetch(cep);
+    }
+
+    @GetMapping("/{cep}/is_valid")
+    public Mono<Boolean> isValid(@PathVariable String cep) {
+        return cepService.isValid(cep);
     }
 }
