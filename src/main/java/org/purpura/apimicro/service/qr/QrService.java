@@ -1,6 +1,5 @@
 package org.purpura.apimicro.service.qr;
 
-import org.purpura.apimicro.common.Colors;
 import org.purpura.apimicro.exception.QrGenerationException;
 import org.purpura.apimicro.model.qr.QRCodeRequestDTO;
 
