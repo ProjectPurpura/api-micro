@@ -13,7 +13,7 @@ import org.purpura.apimicro.common.Sizes;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class QRCodeRequestDTO {
+public class QrCodeRequestDTO {
 
     @NotNull(message = "A chave não pode ser nula")
     @NotBlank(message = "A chave não pode ser vazia")

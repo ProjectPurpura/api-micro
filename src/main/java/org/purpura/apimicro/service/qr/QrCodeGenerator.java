@@ -4,7 +4,7 @@ import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
 import org.purpura.apimicro.common.Colors;
-import org.purpura.apimicro.model.qr.QRCodeRequestDTO;
+import org.purpura.apimicro.model.qr.QrCodeRequestDTO;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -38,7 +38,7 @@ public class QrCodeGenerator {
         return baos.toByteArray();
     }
 
-    public static byte[] generateQRCode(QRCodeRequestDTO qrCodeRequestDTO) throws Exception {
+    public static byte[] generateQRCode(QrCodeRequestDTO qrCodeRequestDTO) throws Exception {
         return generateQRCode(
                 qrCodeRequestDTO.getKey(),
                 qrCodeRequestDTO.getSize(),
