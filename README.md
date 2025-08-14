@@ -37,7 +37,7 @@ https://github.com/PurPuraAmbiental/api-micro.git
 mvn clean install
 ```
 
-### Passo 4: Rode a API
+#### Passo 4: Rode a API
 ```bash
 mvn spring-boot:run
 ```
