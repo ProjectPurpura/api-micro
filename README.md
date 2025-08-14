@@ -9,16 +9,14 @@
 Essa API tem o propósito de conectar com outras APIs e prover serviços fora dos centrados diretamente ao banco de dados.
 
 ## O que ela faz? 📝
-1. Validações
-  - CEP
-1. Geração de Imagens
-  - QR Code para mock do pagamento via pix
+1. Validações (Cep)
+2. Geração de Imagens QR Code para mock do pagamento via pix
 
 ## Tecnologias utilizadas 👩‍💻
 - **Java 21**
-- **Maven**
-- **Spring Boot 3.5.4**
-- **Swagger**
+  - **Maven**
+  - **Spring Boot 3.5.4**
+  - **Swagger**
 - **Docker**
 - **Redis** para cache
 
