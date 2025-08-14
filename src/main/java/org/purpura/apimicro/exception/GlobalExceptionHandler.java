@@ -44,8 +44,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
+    // Exceções customizadas
+    //
     @ExceptionHandler(InvalidCepException.class)
     public ResponseEntity<String> handleCepInvalidException(InvalidCepException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(QrGenerationException.class)
+    public ResponseEntity<String> handleQrGenerationException(QrGenerationException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 }
