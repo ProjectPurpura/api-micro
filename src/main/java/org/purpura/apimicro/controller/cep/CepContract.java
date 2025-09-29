@@ -22,7 +22,7 @@ public interface CepContract {
     )
     @GetMapping("/{cep}")
     Mono<CepResponseDTO> getCep(@PathVariable
-                                @Parameter(name = "cep", description = "CEP a ser procurado", example = "40715515")
+                                @Parameter(name = "cep", description = "CEP a ser procurado (com hífen)", example = "77403-175")
                                 String cep);
 
     @Operation(summary = "Verifica se um CEP é válido", description = "Retorna um booleano para se um CEP é valido",
@@ -34,6 +34,6 @@ public interface CepContract {
     )
     @GetMapping("/{cep}/is_valid")
     Mono<Boolean> isValid(@PathVariable
-                          @Parameter(name = "cep", description = "CEP a ser validado", example = "68909047")
+                          @Parameter(name = "cep", description = "CEP a ser validado (com hífen)", example = "77403-175")
                           String cep);
 }
