@@ -1,6 +1,6 @@
 package org.purpura.apimicro.config.redis;
 
-import org.purpura.apimicro.model.cep.CepResponseDTO;
+import org.purpura.apimicro.dto.cep.CepResponseDTO;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;

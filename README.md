@@ -12,12 +12,19 @@ Essa API tem o propósito de conectar com outras APIs e prover serviços fora do
 1. Validações (Cep)
 2. Geração de Imagens QR Code para mock do pagamento via pix
 
+## Como ver o Swagger 🧪
+
+Para ver o Swagger da API (produção), basta acessar o endereço: [https://api-micro-latest.onrender.com/swagger-ui.html](https://api-micro-latest.onrender.com/)
+
+
 ## Tecnologias utilizadas 👩‍💻
 - **Java 21**
   - **Maven**
   - **Spring Boot 3.5.4**
-  - **Swagger**
-- **Docker**
+  - **Spring WebClient**
+  - **Lombok**
+  - **OpenAPI Swagger**
+- **Docker** para deploy
 - **Redis** para cache
 
 ## Como usar a API 📖
@@ -53,8 +60,12 @@ https://github.com/PurPuraAmbiental/api-micro.git
 
 #### Passo 3: Construa a imagem do docker
 
-## Como ver o Swagger 🧪
-
-Para ver o Swagger da API, basta acessar o endereço: http://localhost:8080/swagger-ui.html
 
 > **OBS:** A API deve estar rodando localmente e o serviço do docker também
+> 
+
+## Autores 💃
+
+Feito com 💜 por:
+- Felipe Fernandes dos Santos Oliveira (Backend, java, testes)
+- Emilio Stuart Palumbo (esteira de deploy)

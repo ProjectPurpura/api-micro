@@ -1,7 +1,7 @@
 package org.purpura.apimicro.service;
 
 import org.purpura.apimicro.exception.InvalidCepException;
-import org.purpura.apimicro.model.cep.CepResponseDTO;
+import org.purpura.apimicro.dto.cep.CepResponseDTO;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
@@ -14,15 +14,14 @@ public class CepService {
 
     private static final String CEP_URL = "https://viacep.com.br/ws/";
     private static final String CEP_CACHE = "cep";
+    private static final String CEP_VALID_CACHE = "cep:valid";
 
 
     public CepService(WebClient.Builder webClientbuilder) {
         this.webClient = webClientbuilder.baseUrl(CEP_URL).build();
     }
 
-
-    @Cacheable(value = CEP_CACHE, key = "#cep")
-    public Mono<CepResponseDTO> fetch(String cep) {
+    public Mono<CepResponseDTO> nonCachedFetch(String cep) {
         String cleanedCep = cep.replaceAll("[^0-9]", "");
         return webClient.get()
                 .uri("{cep}/json/", cleanedCep)
@@ -37,10 +36,15 @@ public class CepService {
                 });
     }
 
+    @Cacheable(value = CEP_CACHE, key = "#cep")
+    public Mono<CepResponseDTO> fetch(String cep) {
+        return nonCachedFetch(cep);
+    }
 
+    @Cacheable(value = CEP_VALID_CACHE, key = "#cep", unless = "#result == false")
     public Mono<Boolean> isValid(String cep) {
         try {
-            return fetch(cep).map(response -> !response.isErro());
+            return nonCachedFetch(cep).map(response -> !response.isErro());
         } catch (InvalidCepException ex) {
             return Mono.just(false);
         }
