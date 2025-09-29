@@ -4,7 +4,7 @@ import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
 import org.purpura.apimicro.common.Colors;
-import org.purpura.apimicro.model.qr.QrCodeRequestDTO;
+import org.purpura.apimicro.dto.qr.QrCodeRequestDTO;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;

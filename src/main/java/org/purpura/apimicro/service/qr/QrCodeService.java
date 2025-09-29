@@ -1,7 +1,7 @@
 package org.purpura.apimicro.service.qr;
 
 import org.purpura.apimicro.exception.QrGenerationException;
-import org.purpura.apimicro.model.qr.QrCodeRequestDTO;
+import org.purpura.apimicro.dto.qr.QrCodeRequestDTO;
 import org.springframework.stereotype.Service;
 
 @Service
