@@ -1,6 +1,7 @@
 package org.purpura.apimicro.controller.cep;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -20,7 +21,9 @@ public interface CepContract {
         }
     )
     @GetMapping("/{cep}")
-    Mono<CepResponseDTO> getCep(@PathVariable String cep);
+    Mono<CepResponseDTO> getCep(@PathVariable
+                                @Parameter(name = "cep", description = "CEP a ser procurado", example = "40715515")
+                                String cep);
 
     @Operation(summary = "Verifica se um CEP é válido", description = "Retorna um booleano para se um CEP é valido",
         responses = {
@@ -30,5 +33,7 @@ public interface CepContract {
         }
     )
     @GetMapping("/{cep}/is_valid")
-    Mono<Boolean> isValid(@PathVariable String cep);
+    Mono<Boolean> isValid(@PathVariable
+                          @Parameter(name = "cep", description = "CEP a ser validado", example = "68909047")
+                          String cep);
 }
