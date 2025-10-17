@@ -1,0 +1,15 @@
+meta {
+  name: get_cep_valid
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{BASE_URL}}/cep/05120060/is_valid
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}
