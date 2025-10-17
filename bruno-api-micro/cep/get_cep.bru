@@ -1,0 +1,15 @@
+meta {
+  name: get_cep
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{BASE_URL}}/cep/05120060
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}
