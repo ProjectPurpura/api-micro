@@ -29,6 +29,6 @@ public class AliveController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public AliveResponseDTO alive() {
-        return new AliveResponseDTO("OK", "API is alive");
+        return new AliveResponseDTO("banana", "Api is alive!");
     }
 }
