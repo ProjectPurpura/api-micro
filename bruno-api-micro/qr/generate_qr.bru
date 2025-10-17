@@ -1,0 +1,23 @@
+meta {
+  name: generate_qr
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BASE_URL}}/qr/generate
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "key": "Olha que coisa mais linda",
+    "foregroundHex": "#FF0000",
+    "backgroundHex": "#001100"
+  }
+}
+
+settings {
+  encodeUrl: true
+}
