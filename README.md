@@ -18,7 +18,7 @@ Essa API tem o propósito de conectar com outras APIs e prover serviços fora do
 
 ## Como ver o Swagger 🧪
 
-Para ver o Swagger da API (produção), basta acessar o endereço: [https://api-micro-latest.onrender.com/swagger-ui.html](https://api-micro-latest.onrender.com/)
+Para ver o Swagger da API (produção), basta acessar o endereço: [https://api-micro-latest.onrender.com/swagger-ui.html](https://api-micro-purpura.onrender.com/)
 
 
 ## Tecnologias utilizadas 👩‍💻
