@@ -1,9 +1,7 @@
 name: Build and Deploy to Render
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -11,12 +9,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Set owner to lowercase
-        id: string-utils
-        uses: ASzc/change-string-case-action@v6
-        with:
-          string: ${{ github.repository_owner }}
 
       - name: Log in to GHCR
         uses: docker/login-action@v2
@@ -30,7 +22,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ steps.string-utils.outputs.lowercase }}/${{ github.event.repository.name }}:latest
+          tags: |
+            ghcr.io/projectpurpura/api-micro:${{ github.run_number }}
+            ghcr.io/projectpurpura/api-micro:latest
 
       - name: Trigger Render Deploy
         run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
