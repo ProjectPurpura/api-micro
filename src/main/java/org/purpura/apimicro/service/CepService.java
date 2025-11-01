@@ -1,5 +1,7 @@
 package org.purpura.apimicro.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.purpura.apimicro.dto.remote.ViaCepResponse;
 import org.purpura.apimicro.exception.CouldNotFetchCepException;
 import org.purpura.apimicro.exception.InvalidCepException;
@@ -14,49 +16,63 @@ import reactor.core.publisher.Mono;
 @Service
 public class CepService {
     private final WebClient webClient;
+    private final ObjectMapper objectMapper;
 
     private static final String CEP_URL = "https://viacep.com.br/ws/";
     private static final String CEP_CACHE = "cep";
     private static final String CEP_VALID_CACHE = "cep:valid";
 
 
-    public CepService(WebClient.Builder webClientbuilder) {
+    public CepService(WebClient.Builder webClientbuilder, ObjectMapper objectMapper) {
         this.webClient = webClientbuilder.baseUrl(CEP_URL).build();
+        this.objectMapper = objectMapper;
     }
 
     public Mono<ViaCepResponse> nonCachedFetch(String cep) {
-        String cleanedCep = cep.replaceAll("[^0-9]", "");
+        String cleanedCep = cep == null ? "" : cep.replaceAll("[^0-9]", "");
+        if (cleanedCep.length() != 8) {
+            return Mono.error(new InvalidCepException(cep));
+        }
         return webClient.get()
                 .uri("{cep}/json/", cleanedCep)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class).map(InvalidCepException::new))
-                .bodyToMono(ViaCepResponse.class)
-                .flatMap(response -> {
-                    if (response.getErro() != null) {
-                        return Mono.error(new InvalidCepException(cep));
+                .bodyToMono(String.class)
+                .flatMap(body -> {
+                    try {
+                        if (body == null || body.isEmpty()) {
+                            return Mono.error(new CouldNotFetchCepException(cep));
+                        }
+                        JsonNode node = objectMapper.readTree(body);
+                        if (node.has("erro") && node.get("erro").asBoolean(false)) {
+                            return Mono.error(new InvalidCepException(cep));
+                        }
+                        ViaCepResponse resp = objectMapper.treeToValue(node, ViaCepResponse.class);
+                        return Mono.just(resp);
+                    } catch (InvalidCepException ex) {
+                        return Mono.error(ex);
+                    } catch (Exception ex) {
+                        return Mono.error(new CouldNotFetchCepException(cep));
                     }
-                    return Mono.just(response);
                 });
     }
 
     @Cacheable(value = CEP_CACHE, key = "#cep")
     public Mono<CepResponseDTO> fetch(String cep) {
-        ViaCepResponse remoteResponse = nonCachedFetch(cep).block();
-        if (remoteResponse == null) {
-            throw new CouldNotFetchCepException(cep);
-        }
-        CepResponseDTO responseDTO = new CepResponseDTO();
-
-        BeanUtils.copyProperties(remoteResponse, responseDTO);
-        return Mono.just(responseDTO);
+        return nonCachedFetch(cep)
+                .map(remoteResponse -> {
+                    CepResponseDTO responseDTO = new CepResponseDTO();
+                    BeanUtils.copyProperties(remoteResponse, responseDTO);
+                    return responseDTO;
+                })
+                .switchIfEmpty(Mono.error(new CouldNotFetchCepException(cep)));
     }
 
     @Cacheable(value = CEP_VALID_CACHE, key = "#cep", unless = "#result == false")
     public Mono<Boolean> isValid(String cep) {
-        try {
-            return nonCachedFetch(cep).map(response -> !response.getErro());
-        } catch (InvalidCepException ex) {
-            return Mono.just(false);
-        }
+        return nonCachedFetch(cep)
+                .flatMap(response -> Mono.just(true))
+                .onErrorResume(InvalidCepException.class, ex -> Mono.just(false))
+                .onErrorResume(ex -> Mono.just(false));
     }
 }

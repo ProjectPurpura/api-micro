@@ -23,16 +23,4 @@ public class CepResponseDTO {
 
     @Schema(description = "Sigla do estado", example = "SP")
     private String uf;
-
-    @Schema(description = "Código IBGE do município", example = "3550308")
-    private String ibge;
-
-    @Schema(description = "Código GIA (específico para endereços do estado de São Paulo)", example = "1004")
-    private String gia;
-
-    @Schema(description = "Código DDD da região", example = "11")
-    private String ddd;
-
-    @Schema(description = "Código SIAFI do município", example = "7107")
-    private String siafi;
 }
