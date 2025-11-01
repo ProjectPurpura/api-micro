@@ -56,8 +56,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
-    @ExceptionHandler(CouldNotFetchCEPException.class)
-    public ResponseEntity<String> handleCouldNotFetchCEPException(CouldNotFetchCEPException ex) {
+    @ExceptionHandler(CouldNotFetchCepException.class)
+    public ResponseEntity<String> handleCouldNotFetchCEPException(CouldNotFetchCepException ex) {
         // Erro de comunicação entre os servidores
         return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(ex.getMessage());
     }

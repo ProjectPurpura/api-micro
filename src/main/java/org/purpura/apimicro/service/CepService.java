@@ -1,7 +1,7 @@
 package org.purpura.apimicro.service;
 
 import org.purpura.apimicro.dto.remote.ViaCepResponse;
-import org.purpura.apimicro.exception.CouldNotFetchCEPException;
+import org.purpura.apimicro.exception.CouldNotFetchCepException;
 import org.purpura.apimicro.exception.InvalidCepException;
 import org.purpura.apimicro.dto.cep.CepResponseDTO;
 import org.springframework.beans.BeanUtils;
@@ -43,7 +43,7 @@ public class CepService {
     public Mono<CepResponseDTO> fetch(String cep) {
         ViaCepResponse remoteResponse = nonCachedFetch(cep).block();
         if (remoteResponse == null) {
-            throw new CouldNotFetchCEPException(cep);
+            throw new CouldNotFetchCepException(cep);
         }
         CepResponseDTO responseDTO = new CepResponseDTO();
 
