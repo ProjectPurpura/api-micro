@@ -35,7 +35,4 @@ public class CepResponseDTO {
 
     @Schema(description = "Código SIAFI do município", example = "7107")
     private String siafi;
-
-    @Schema(description = "Indica se houve erro na consulta", example = "false")
-    private boolean erro;
 }
