@@ -55,4 +55,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleQrGenerationException(QrGenerationException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
+
+    @ExceptionHandler(CouldNotFetchCEPException.class)
+    public ResponseEntity<String> handleCouldNotFetchCEPException(CouldNotFetchCEPException ex) {
+        // Erro de comunicação entre os servidores
+        return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(ex.getMessage());
+    }
 }
