@@ -5,11 +5,23 @@ meta {
 }
 
 get {
-  url: {{BASE_URL}}/cep/05120060/is_valid
+  url: {{BASE_URL}}/cep/06260090/is_valid
   body: none
   auth: inherit
 }
 
 settings {
   encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  1. Cep bom
+  {{BASE_URL}}/cep/06260090/is_valid
+  
+  2. Cep inválido
+  {{BASE_URL}}/cep/06260099/is_valid
+  
+  3. Cep da escola
+  {{BASE_URL}}/cep/05120060/is_valid
 }

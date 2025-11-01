@@ -22,10 +22,10 @@ public interface CepContract {
     )
     @GetMapping("/{cep}")
     Mono<CepResponseDTO> getCep(@PathVariable
-                                @Parameter(name = "cep", description = "CEP a ser procurado (com hífen)", example = "77403-175")
+                                @Parameter(name = "cep", description = "CEP a ser procurado (sem hífen)", example = "77403175")
                                 String cep);
 
-    @Operation(summary = "Verifica se um CEP é válido", description = "Retorna um booleano para se um CEP é valido",
+    @Operation(summary = "Verifica se um CEP (sem hífens) é válido", description = "Retorna um booleano para se um CEP é valido",
         responses = {
             @ApiResponse(responseCode = "200", description = "true se CEP válido false senão",
                 content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Boolean.class))
