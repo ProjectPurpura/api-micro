@@ -1,7 +1,10 @@
 package org.purpura.apimicro.service;
 
+import org.purpura.apimicro.dto.remote.ViaCepResponse;
+import org.purpura.apimicro.exception.CouldNotFetchCEPException;
 import org.purpura.apimicro.exception.InvalidCepException;
 import org.purpura.apimicro.dto.cep.CepResponseDTO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
@@ -21,15 +24,15 @@ public class CepService {
         this.webClient = webClientbuilder.baseUrl(CEP_URL).build();
     }
 
-    public Mono<CepResponseDTO> nonCachedFetch(String cep) {
+    public Mono<ViaCepResponse> nonCachedFetch(String cep) {
         String cleanedCep = cep.replaceAll("[^0-9]", "");
         return webClient.get()
                 .uri("{cep}/json/", cleanedCep)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class).map(InvalidCepException::new))
-                .bodyToMono(CepResponseDTO.class)
+                .bodyToMono(ViaCepResponse.class)
                 .flatMap(response -> {
-                    if (response.isErro()) {
+                    if (response.getErro() != null) {
                         return Mono.error(new InvalidCepException(cep));
                     }
                     return Mono.just(response);
@@ -38,13 +41,20 @@ public class CepService {
 
     @Cacheable(value = CEP_CACHE, key = "#cep")
     public Mono<CepResponseDTO> fetch(String cep) {
-        return nonCachedFetch(cep);
+        ViaCepResponse remoteResponse = nonCachedFetch(cep).block();
+        if (remoteResponse == null) {
+            throw new CouldNotFetchCEPException(cep);
+        }
+        CepResponseDTO responseDTO = new CepResponseDTO();
+
+        BeanUtils.copyProperties(remoteResponse, responseDTO);
+        return Mono.just(responseDTO);
     }
 
     @Cacheable(value = CEP_VALID_CACHE, key = "#cep", unless = "#result == false")
     public Mono<Boolean> isValid(String cep) {
         try {
-            return nonCachedFetch(cep).map(response -> !response.isErro());
+            return nonCachedFetch(cep).map(response -> !response.getErro());
         } catch (InvalidCepException ex) {
             return Mono.just(false);
         }
