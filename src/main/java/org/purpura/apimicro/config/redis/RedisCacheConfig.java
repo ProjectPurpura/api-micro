@@ -1,28 +1,98 @@
 package org.purpura.apimicro.config.redis;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import org.jspecify.annotations.NonNull;
+import org.springframework.cache.Cache;
+import org.springframework.cache.interceptor.CacheErrorHandler;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.serializer.SerializationException;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
+@EnableCaching
 public class RedisCacheConfig {
+    @Bean
+    public RedisCacheConfiguration defaultCacheConfig() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.activateDefaultTyping(
+                LaissezFaireSubTypeValidator.instance,
+                ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.WRAPPER_ARRAY
+        );
+        GenericJackson2JsonRedisSerializer jacksonSerializer = new GenericJackson2JsonRedisSerializer(mapper);
+        return RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofHours(1))
+                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jacksonSerializer))
+                .disableCachingNullValues();
+    }
 
     @Bean
-    public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
-        RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(10))
-                .disableCachingNullValues()
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
-                        new GenericJackson2JsonRedisSerializer()));
+    public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+        RedisCacheConfiguration defaultConfig = defaultCacheConfig();
 
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .cacheDefaults(cacheConfiguration)
+        Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
+        cacheConfigs.put(RedisKeys.CEP_CACHE, defaultConfig.entryTtl(Duration.ofMinutes(10)));
+
+        return RedisCacheManager.builder(connectionFactory)
+                .cacheDefaults(defaultConfig)
+                .withInitialCacheConfigurations(cacheConfigs)
                 .build();
+    }
+
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(connectionFactory);
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        return redisTemplate;
+    }
+
+    @Bean
+    public CacheErrorHandler cacheErrorHandler() {
+        return new CacheErrorHandler() {
+            @Override
+            public void handleCacheGetError(@NonNull RuntimeException exception, @NonNull Cache cache, @NonNull Object key) {
+                System.err.println("[REDIS LOG] Cache GET error for key=" + key + ", cache=" + cache.getName() + ": " + exception.getMessage());
+                Throwable cause = exception.getCause();
+                if (exception instanceof SerializationException || (cause instanceof SerializationException)) {
+                    try {
+                        cache.evict(key);
+                    } catch (Exception e) {
+                        System.err.println("[REDIS LOG] Failed to evict cache key after serialization error: " + e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void handleCachePutError(@NonNull RuntimeException exception, @NonNull Cache cache, @NonNull Object key, Object value) {
+                System.err.println("[REDIS LOG] Cache PUT error for key=" + key + ": " + exception.getMessage());
+            }
+
+            @Override
+            public void handleCacheEvictError(@NonNull RuntimeException exception, @NonNull Cache cache, @NonNull Object key) {
+                System.err.println("[REDIS LOG] Cache EVICT error for key=" + key + ": " + exception.getMessage());
+            }
+
+            @Override
+            public void handleCacheClearError(@NonNull RuntimeException exception, @NonNull Cache cache) {
+                System.err.println("[REDIS LOG] Cache CLEAR error for cache=" + (cache != null ? cache.getName() : "null") + ": " + exception.getMessage());
+            }
+        };
     }
 }
