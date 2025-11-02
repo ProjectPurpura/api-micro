@@ -18,7 +18,7 @@ Essa API tem o propósito de conectar com outras APIs e prover serviços fora do
 
 ## Como ver o Swagger 🧪
 
-Para ver o Swagger da API (produção), basta acessar o endereço: [https://c187cn9h8e.execute-api.us-east-1.amazonaws.com/swagger-ui/index.html#](https://c187cn9h8e.execute-api.us-east-1.amazonaws.com/swagger-ui/index.html#)
+Para ver o Swagger da API (produção), basta acessar o endereço: [https://c187cn9h8e.execute-api.us-east-1.amazonaws.com/swagger-ui/index.html#](https://c187cn9h8e.execute-api.us-east-1.amazonaws.com/swagger-ui.html)
 
 
 ## Tecnologias utilizadas 👩‍💻
