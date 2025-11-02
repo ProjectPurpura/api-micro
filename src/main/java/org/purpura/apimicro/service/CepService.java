@@ -7,6 +7,7 @@ import org.purpura.apimicro.dto.remote.ViaCepResponse;
 import org.purpura.apimicro.exception.CouldNotFetchCepException;
 import org.purpura.apimicro.exception.InvalidCepException;
 import org.purpura.apimicro.dto.cep.CepResponseDTO;
+import org.purpura.apimicro.model.ValidCepWrapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatusCode;
@@ -14,17 +15,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.concurrent.TimeUnit;
+
 @Service
 public class CepService {
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
 
-    private static final String CEP_URL = "https://viacep.com.br/ws/";
+    private static final String VIACEP_COM_BR_WS = "https://viacep.com.br/ws/";
 
+    private final RedisService redisService;
 
-    public CepService(WebClient.Builder webClientbuilder, ObjectMapper objectMapper) {
-        this.webClient = webClientbuilder.baseUrl(CEP_URL).build();
+    public CepService(
+            WebClient.Builder webClientbuilder,
+            ObjectMapper objectMapper,
+            RedisService redisService
+    ) {
+        this.webClient = webClientbuilder.baseUrl(VIACEP_COM_BR_WS).build();
         this.objectMapper = objectMapper;
+        this.redisService = redisService;
     }
 
     public Mono<ViaCepResponse> nonCachedFetch(String cep) {
@@ -69,9 +78,23 @@ public class CepService {
 
     @Cacheable(value = RedisKeys.CEP_VALID_CACHE, key = "#p0", unless = "#result == null")
     public Mono<Boolean> isValid(String cep) {
+        String redisKey = "valid_cep:" + cep;
+        ValidCepWrapper cachedResult = redisService.getValidCep(redisKey);
+        if (cachedResult != null) {
+            return Mono.just(cachedResult.isValid());
+        }
+
         return nonCachedFetch(cep)
-                .flatMap(response -> Mono.just(true))
-                .onErrorResume(InvalidCepException.class, ex -> Mono.just(false))
+                .flatMap(response -> {
+                    ValidCepWrapper validCepWrapper = new ValidCepWrapper(true);
+                    redisService.saveValidCep(redisKey, validCepWrapper, 1, TimeUnit.HOURS);
+                    return Mono.just(true);
+                })
+                .onErrorResume(InvalidCepException.class, ex -> {
+                    ValidCepWrapper validCepWrapper = new ValidCepWrapper(false);
+                    redisService.saveValidCep(redisKey, validCepWrapper, 1, TimeUnit.HOURS);
+                    return Mono.just(false);
+                })
                 .onErrorResume(ex -> Mono.just(false));
     }
 }
