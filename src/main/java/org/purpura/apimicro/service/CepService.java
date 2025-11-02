@@ -2,6 +2,7 @@ package org.purpura.apimicro.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.purpura.apimicro.config.redis.RedisKeys;
 import org.purpura.apimicro.dto.remote.ViaCepResponse;
 import org.purpura.apimicro.exception.CouldNotFetchCepException;
 import org.purpura.apimicro.exception.InvalidCepException;
@@ -19,8 +20,6 @@ public class CepService {
     private final ObjectMapper objectMapper;
 
     private static final String CEP_URL = "https://viacep.com.br/ws/";
-    private static final String CEP_CACHE = "cep";
-    private static final String CEP_VALID_CACHE = "cep:valid";
 
 
     public CepService(WebClient.Builder webClientbuilder, ObjectMapper objectMapper) {
@@ -57,7 +56,7 @@ public class CepService {
                 });
     }
 
-    @Cacheable(value = CEP_CACHE, key = "#cep")
+    @Cacheable(value = RedisKeys.CEP_CACHE, key = "#p0", unless = "#result == null")
     public Mono<CepResponseDTO> fetch(String cep) {
         return nonCachedFetch(cep)
                 .map(remoteResponse -> {
@@ -68,7 +67,7 @@ public class CepService {
                 .switchIfEmpty(Mono.error(new CouldNotFetchCepException(cep)));
     }
 
-    @Cacheable(value = CEP_VALID_CACHE, key = "#cep", unless = "#result == false")
+    @Cacheable(value = RedisKeys.CEP_VALID_CACHE, key = "#p0", unless = "#result == null")
     public Mono<Boolean> isValid(String cep) {
         return nonCachedFetch(cep)
                 .flatMap(response -> Mono.just(true))
