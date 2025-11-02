@@ -76,9 +76,8 @@ public class CepService {
                 .switchIfEmpty(Mono.error(new CouldNotFetchCepException(cep)));
     }
 
-    @Cacheable(value = RedisKeys.CEP_VALID_CACHE, key = "#p0", unless = "#result == null")
     public Mono<Boolean> isValid(String cep) {
-        String redisKey = "valid_cep:" + cep;
+        String redisKey = RedisKeys.CEP_VALID_CACHE + ":" + cep;
         ValidCepWrapper cachedResult = redisService.getValidCep(redisKey);
         if (cachedResult != null) {
             return Mono.just(cachedResult.isValid());
