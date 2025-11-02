@@ -46,7 +46,6 @@ public class RedisCacheConfig {
         RedisCacheConfiguration defaultConfig = defaultCacheConfig();
 
         Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
-        cacheConfigs.put(RedisKeys.CEP_VALID_CACHE, defaultConfig.entryTtl(Duration.ofMinutes(3)));
         cacheConfigs.put(RedisKeys.CEP_CACHE, defaultConfig.entryTtl(Duration.ofMinutes(10)));
 
         return RedisCacheManager.builder(connectionFactory)
